@@ -1,0 +1,22 @@
+{% if channels_list %}
+<table>
+	<thead>
+		<tr>
+			<td>Sensor</td>
+			<td>Root</td>
+			<td>Nextroot</td>
+		</tr>
+	</thead>
+	<tbody>
+		{% for channel in channels_list %}
+		<tr>
+			<td>{{ channel.sensor_name }}</td>
+			<td>{{ channel.channel_root }}</td>
+			<td>{{ channel.channel_next_root }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% else %}
+	<p>No channels are available.</p>
+{% endif %}
