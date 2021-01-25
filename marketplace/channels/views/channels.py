@@ -1,5 +1,7 @@
 import datetime
+import pytz
 
+from django.utils import timezone
 from django.http import Http404, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
@@ -11,9 +13,11 @@ from ..serializers import ChannelSerializer
 
 class Channels(APIView):
 
-	def get_object(self, sensor_name):
+	paris_tz = pytz.timezone("Europe/Paris")
+
+	def get_object(self, pk):
 		try:
-			return Channel.objects.get(sensor_name=sensor_name)
+			return Channel.objects.get(id=pk)
 		except Channel.DoesNotExist:
 			raise Http404
 
@@ -23,19 +27,21 @@ class Channels(APIView):
 		return Response(serializer.data)
 
 	def put(self, request, format=None):
-		channel - self.get_object(request.data['sensor_name'])
-		channel.channel_root = self.validate(request.data['channel_root'])
-		channel.channel_next_root = self.validate(request.data['channel_next_root'])
-		channel.pub_date = datetime.now()
+		channel = self.get_object(request.data['id'])
+		channel.sensor_name = channel.sensor_name
+		channel.channel_root = channel.channel_root
+		channel.channel_next_root = request.data['channel_next_root']
+		channel.pub_date = datetime.datetime.now(tz=self.paris_tz)
 		channel.save()
 		serializer = ChannelSerializer(channel)
 		return Response(serializer.data)
 
 	def post(self,request):
 		channel = Channel()
-		channel.sensor_name = self.validate(request.data['sensor_name'])
-		channel.channel_root = self.validate(request.data['channel_root'])
-		channel.channel_next_root = self.validate(request.data['channel_next_root'])
+		channel.sensor_name = request.data['sensor_name']
+		channel.channel_root = request.data['channel_root']
+		channel.channel_next_root = request.data['channel_next_root']
+		channel.pub_date = datetime.datetime.now(tz=self.paris_tz)
 		channel.save()
 		serializer = ChannelSerializer(channel)
 		return Response(serializer.data, status=status.HTTP_201_CREATED)
